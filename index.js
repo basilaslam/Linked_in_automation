@@ -138,6 +138,9 @@ async function findTargetAndType(target, value) {
   await f.type(value);
 }
 async function waitForSelectorAndType(target, value) {
+  const targetEl = await page.$(target)
+  await targetEl.click({ clickCount: 3 }); // select all the text in the input field
+  await targetEl.press('Backspace');
   const typer = await page.waitForSelector(target, { visible: true });
   await typer.type(value);
 }
@@ -213,7 +216,7 @@ async function FillAndApply() {
       console.log(`Apply N°[${index}]`);
       await buttonClick(
         `li[class*="jobs-search-results__list-item"]:nth-child(${index})>div>div>div>div+div>div`
-      );
+        );
       if (index === nbrOfOffersPerPage) lastIndexForPagination++;
       /* -------------------------- FIX THIS PART OF CODE ----------------------- */
       await page.waitForTimeout(2000);
@@ -229,10 +232,10 @@ async function FillAndApply() {
               document
                 .querySelector(
                   'div[class="display-flex justify-flex-end ph5 pv4"]>button'
-                )
+                  )
                 .click();
             })
-          ) {
+            ) {
             state = true;
           } else {
             state = false;
@@ -252,8 +255,8 @@ async function FillAndApply() {
           if (
             (await page.$(
               'input[class="ember-text-field ember-view fb-single-line-text__input"]'
-            )) != null
-          ) {
+              )) != null
+              ) {
             await page.evaluate(() => {
               const divElem = document.querySelector("div.pb4");
               const inputElements = divElem.querySelectorAll("input");
@@ -262,7 +265,7 @@ async function FillAndApply() {
               var nativeInputValueSetter = Object.getOwnPropertyDescriptor(
                 window.HTMLInputElement.prototype,
                 "value"
-              ).set;
+                ).set;
               for (let index = 0; index < inputElements.length; index++) {
                 setTimeout(() => {}, 2000);
                 nativeInputValueSetter.call(inputElements[index], value);
@@ -278,19 +281,19 @@ async function FillAndApply() {
             if (
               !(await page.$(
                 'div[class*="artdeco-modal-overlay"]>div>div+div+div>button>span'
-              ))
-            ) {
+                ))
+                ) {
               i++;
               console.log(i);
               await page.evaluate(() => {
                 setTimeout(() => {}, 3000);
                 document
-                  .querySelector(
-                    'div[class="display-flex justify-flex-end ph5 pv4"]>button + button'
+                .querySelector(
+                  'div[class="display-flex justify-flex-end ph5 pv4"]>button + button'
                   )
                   .click();
-              });
-            } else i=-2;
+                });
+              } else i=-2;
           } while (i>=0);
           console.log("finally close button");
           await page.waitForTimeout(4000);
@@ -299,13 +302,13 @@ async function FillAndApply() {
             document
               .querySelector(
                 'div[class*="artdeco-modal-overlay"]>div>div+div+div>button>span'
-              )
-              .click();
-          });
+                )
+                .click();
+              });
+            }
         }
+        /* ------------------------------------------------------------ */
       }
-      /* ------------------------------------------------------------ */
-    }
     // To click on the next page
     await buttonClick(
       `ul[class="artdeco-pagination__pages artdeco-pagination__pages--number"]>li:nth-child(${lastIndexForPagination})`
@@ -314,9 +317,38 @@ async function FillAndApply() {
     console.log("finished Scrolling page N°" + (i - 1));
   }
 }
+async function waitForSelectorAndClick(element){
+  
+  await page.waitForSelector(element)
+  await page.click(element)
+  
+}
+async function pickResume(){
+  let docs = await page.$$('.jobs-resume-picker__resume > .jobs-resume-picker__resume-btn-container > [aria-label="Choose Resume"]')
+  await docs[process.env.CV-1].click()
+}
+
+async function clickNext(){
+  await page.waitForSelector('[aria-label="Continue to next step"]')
+  const next = await page.$('[aria-label="Continue to next step"]')
+  await next.click()
+}
+
+async function hasInputfield(){
+  const inputField = await page.$('input'); // replace 'input' with the appropriate CSS selector for your input field
+  const hasInputField = !!inputField; // convert inputField to a boolean using the double negation operator
+  
+  return hasInputField
+  
+}
+
+async function fillForm(){
 
 
-
+  
+  // CHeck If it have input field
+  const hasInput = await hasInputfield()
+}
 
 async function set_ground(){
 	
@@ -329,19 +361,38 @@ async function set_ground(){
 	 await navigationPromise;
 
 	 await page.waitForSelector('#search-reusables__filters-bar > ul > li:nth-child(4) > button')
-  		console.log('got it')
+   console.log('got it')
 	await page.click('#search-reusables__filters-bar > ul > li:nth-child(4) > button')
 
-	 setTimeout(()=>{
-
-	},10000)
+  setTimeout(()=>{
+    
+  },10000)
 	await page.waitForSelector('#search-reusables__filters-bar > ul > li:nth-child(6) > div > button')
 	await page.click('#search-reusables__filters-bar > ul > li:nth-child(6) > div > button')
 
 	await page.waitForSelector('#main > div > section.scaffold-layout__detail.overflow-x-hidden.jobs-search__job-details > div > div.job-view-layout.jobs-details > div:nth-child(1) > div > div:nth-child(1) > div > div.relative > div.jobs-unified-top-card__content--two-pane > div:nth-child(4) > div > div > div > button')
 	await page.click('#main > div > section.scaffold-layout__detail.overflow-x-hidden.jobs-search__job-details > div > div.job-view-layout.jobs-details > div:nth-child(1) > div > div:nth-child(1) > div > div.relative > div.jobs-unified-top-card__content--two-pane > div:nth-child(4) > div > div > div > button')
-
+  
 	// await page.type('#single-line-text-form-component-formElement-urn-li-jobs-applyformcommon-easyApplyFormElement-3488421295-82648499-phoneNumber-nationalNumber', process.env.MOBILE)
+
+}
+
+
+async function applyForJob(){
+
+  await page.waitForSelector('#main > div > section.scaffold-layout__detail.overflow-x-hidden.jobs-search__job-details > div > div.job-view-layout.jobs-details > div:nth-child(1) > div > div:nth-child(1) > div > div.relative > div.jobs-unified-top-card__content--two-pane > div:nth-child(4) > div > div > div > button[id^=ember]')
+
+  const easyApply = await page.$('#main > div > section.scaffold-layout__detail.overflow-x-hidden.jobs-search__job-details > div > div.job-view-layout.jobs-details > div:nth-child(1) > div > div:nth-child(1) > div > div.relative > div.jobs-unified-top-card__content--two-pane > div:nth-child(4) > div > div > div > button[id^=ember]')
+  await easyApply.click()
+  await waitForSelectorAndType('[id$=phoneNumber-nationalNumber','9446994765')
+  await clickNext()
+  // Pick Resume
+  await pickResume()
+  console.log('picked resume')
+  await clickNext()
+
+  await fillForm()
+
 
 }
 
@@ -356,14 +407,13 @@ async function findAndApply(){
 	const totalJobs = $('.scaffold-layout__list-container > li');
 	const liElements = await page.$$('.scaffold-layout__list-container  li');
 
-
-console.log(liElements);
-
-	for(i = 0; i < liElements.length; i++){
+	for(i = 0; i < 1; i++){
 		const li = liElements[i];
     
     // Click on the <li> element
     await li.click();
+
+    await applyForJob()
 	
 	}
 }
